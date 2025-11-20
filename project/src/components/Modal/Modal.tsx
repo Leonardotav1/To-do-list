@@ -1,11 +1,11 @@
 import React, { useState } from "react"
 import { Button } from "../ui/button"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "../ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Calendar } from "../ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { ChevronDownIcon } from "lucide-react"
+import { AlertCircleIcon, ChevronDownIcon } from "lucide-react"
 import { useTask } from "@/contexts/TodoContext"
 
 // Interface para as props do modal.
@@ -38,6 +38,8 @@ export const ModalTask = ({
     const [date, setDate] = React.useState<Date | undefined>(undefined)
     const [input, setInput] = useState("")
 
+    const [error, setError] = useState("")
+
     // Pega as funções do contexto.
     const { addTask, editTask, addTasksDay } = useTask()
 
@@ -56,7 +58,7 @@ export const ModalTask = ({
     }
 
     const handleAddTaskDay = () => {
-        if(!dateTask ) {
+        if (!dateTask) {
             return
         }
 
@@ -78,19 +80,33 @@ export const ModalTask = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
+        if (input.trim() === "") {
+            setError("Digite algo")
+            return
+        }
+
+        if (!isEditing && !newTaskDay && !date) {
+            setError("Selecione uma data")
+            return
+        }
+
+        setError("")
+
         if (isEditing) {
             handleEditTask()
         }
-        else if(newTaskDay){
+        else if (newTaskDay) {
             handleAddTaskDay()
-        } 
+        }
         else {
             if (!date) {
                 return alert("Nenhuma data foi selecionada!")
             }
             handleAddTask()
         }
+
         handleOpenChange(false)
+
     }
 
     // Handler para setar o estado do modal.  
@@ -101,6 +117,7 @@ export const ModalTask = ({
             onOpenNewTaskDay(false)
             setInput("")
             setDate(undefined)
+            setError("")
         }
     }
 
@@ -108,32 +125,57 @@ export const ModalTask = ({
     return (
         <Dialog
             open={openDialog} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] bg-slate-200 border-0 ">
                 <form onSubmit={handleSubmit}>
-                    <DialogHeader>
-                        <DialogTitle>
+                    <DialogHeader className=" mb-4 ">
+                        <DialogTitle className="text-2xl">
                             {isEditing ? "Editar Tarefa" : "O que há de novo?"}
                         </DialogTitle>
-                        <DialogDescription className="mb-2">
-                            {isEditing
-                                ? "Altere o conteúdo da sua tarefa abaixo."
-                                : "Adicione uma nova tarefa."}
-                        </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4">
                         {isEditing
                             ? (<div className="grid gap-3">
-                                <Label htmlFor="name-1">Tarefa</Label>
-                                <Input id="name-1" name="name" placeholder={valueTask} onChange={(e) => { setInput(e.target.value) }} />
+                                <Label htmlFor="name-1" className=" text-2xl">Tarefa</Label>
+                                <Input
+                                    className={`bg-white ${error ? "border-2 border-red-500" : ""}`}
+                                    id="name-1"
+                                    name="name"
+                                    placeholder={valueTask}
+                                    onChange={(e) => {
+                                        setInput(e.target.value)
+                                        setError("")
+                                    }} />
+                                {error && (
+                                    <div className="flex gap-2 p-1 bg-red-600  pl-2 rounded">
+                                        <AlertCircleIcon className="w-5" />
+                                        <span >{error}</span>
+                                    </div>
+                                )}
+
                             </div>)
                             : (<div className="grid gap-3">
-                                <Label htmlFor="name-1">Tarefa</Label>
-                                <Input id="name-1" name="name" placeholder="Ex: Ir ao dentista sábado" onChange={(e) => { setInput(e.target.value) }} />
+                                <Label htmlFor="name-1" className=" text-xl">Tarefa</Label>
+                                <Input
+                                    className={`bg-white ${error ? "border-2 border-red-500" : ""}`}
+                                    id="name-1"
+                                    name="name"
+                                    placeholder="Ex: Ir ao dentista sábado"
+                                    onChange={(e) => {
+                                        setInput(e.target.value)
+                                        setError("")
+                                    }} />
+                                {error && (
+                                    <div className="flex gap-2 p-1 bg-red-600 text-white pl-2 rounded">
+                                        <AlertCircleIcon className="w-5" />
+                                        <span >{error}</span>
+                                    </div>
+                                )}
+
                             </div>)
                         }
                         {!isEditing && !newTaskDay && (
                             <div className="flex flex-col gap-3">
-                                <Label htmlFor="date" className="px-1">
+                                <Label htmlFor="date" className="px-1 text-xl">
                                     Data
                                 </Label>
                                 <Popover open={open} onOpenChange={setOpen}>
@@ -141,13 +183,13 @@ export const ModalTask = ({
                                         <Button
                                             variant="outline"
                                             id="date"
-                                            className="w-48 justify-between font-normal"
+                                            className="w-48 justify-between font-normal "
                                         >
                                             {date ? date.toLocaleDateString() : "Selecione o dia"}
                                             <ChevronDownIcon />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                                    <PopoverContent className="w-auto overflow-hidden p-0 " align="start">
                                         <Calendar
                                             mode="single"
                                             selected={date}
@@ -160,15 +202,14 @@ export const ModalTask = ({
                                     </PopoverContent>
                                 </Popover>
                             </div>)
-
                         }
 
                     </div>
                     <DialogFooter className="mt-4">
                         <DialogClose asChild>
-                            <Button variant="outline">Cancelar</Button>
+                            <Button className="bg-rose-700 p-2 rounded-md hover:bg-rose-800 ">Cancelar</Button>
                         </DialogClose>
-                        <Button type="submit">Salvar</Button>
+                        <Button type="submit" className="bg-green-700 hover:bg-green-800">Salvar</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

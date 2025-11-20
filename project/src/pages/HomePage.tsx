@@ -1,7 +1,6 @@
 import { ModalTask } from "@/components/Modal/Modal"
 import { Button } from "@/components/ui/button"
 import { useTask } from "@/contexts/TodoContext"
-import { set } from "date-fns"
 import { Pen, Trash } from "lucide-react"
 import { useState } from "react"
 // import { useEffect } from "react"
@@ -21,13 +20,13 @@ export const Home = () => {
     const { tasksByDate, removeTask } = useTask()
 
     return (
-        <div className="flex flex-col justify-start gap-10 h-screen p-5 bg-slate-50">
+        <div className="flex flex-col justify-start gap-10 h-screen p-5 bg-white">
 
             <span className="font-sans text-5xl text-center text-slate-800 ">Lista de Lembretes</span>
 
             <div className="flex justify-center">
                 <Button
-                    className="bg-indigo-500 hover:bg-indigo-600 text-white"
+                    className="bg-[#ab00ff] hover:bg-[#5e0098] text-white text-2xl p-7 cursor-pointer"
                     onClick={() => {
                         setModalOpen(true)
                     }}
@@ -42,7 +41,7 @@ export const Home = () => {
                 <div className="flex flex-col items-center ">
                     <div className="grid grid-cols-4 gap-7 justify-around w-full">
                         {Object.entries(tasksByDate).map(([date, tasks]) => (
-                            <div key={date} className="flex flex-col bg-slate-100 p-2 rounded ">
+                            <div key={date} className="flex flex-col bg-white border border-gray-200 shadow-md rounded-xl p-4 w-full max-w-md mx-auto">
                                 <h2 className="text-2xl text-center">
                                     🗓️ {date}
                                 </h2>
@@ -51,12 +50,13 @@ export const Home = () => {
 
                                 {tasks.map((task, index) => (
                                     <div key={index} className="flex text-2xl gap-2 p-1">
-                                        <div className="flex w-full justify-between bg-slate-300 p-2 rounded">
+                                        <div className="flex w-full items-center justify-between bg-gray-100 p-3 rounded-lg hover:bg-gray-200 transition">
 
-                                            <p>{task.text}</p>
+                                            <span>{task.text}</span>
 
                                             <div className=" flex gap-2">
                                                 <Button
+                                                className="bg-blue-500 p-2 rounded-md hover:bg-blue-600"
                                                     onClick={() => {
                                                         setSelectedDate(date)
                                                         setSelectedIndex(index)
@@ -65,12 +65,12 @@ export const Home = () => {
                                                         setIsEditing(true)
                                                     }}
                                                 >
-                                                    <Pen />
+                                                    <Pen/>
                                                 </Button>
 
 
                                                 <Button
-                                                    variant={"destructive"}
+                                                    className="bg-rose-700 p-2 rounded-md hover:bg-rose-800"
                                                     onClick={() => removeTask(date, index)}
                                                 >
                                                     <Trash />
