@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Button } from "../ui/button"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Calendar } from "../ui/calendar"
@@ -38,6 +38,7 @@ export const ModalTask = ({
     const [date, setDate] = React.useState<Date | undefined>(undefined)
     const [input, setInput] = useState("")
 
+    // State para controlar erros
     const [error, setError] = useState("")
 
     // Pega as funções do contexto.
@@ -50,7 +51,6 @@ export const ModalTask = ({
     const handleAddTask = () => {
         // Caso não exista a data retorna 
         if (!dateString) {
-            console.log("Nenhuma data selecionada")
             return
         }
 
@@ -58,6 +58,7 @@ export const ModalTask = ({
     }
 
     const handleAddTaskDay = () => {
+        // Caso não exista a rota retorna.
         if (!dateTask) {
             return
         }
@@ -69,7 +70,6 @@ export const ModalTask = ({
     const handleEditTask = () => {
         // Caso não exista nenhuma data ou index, retorna a mensagem.
         if (!dateTask || indexTask === undefined) {
-            console.log("Nenhuma data selecionada")
             return
         }
 
@@ -80,18 +80,22 @@ export const ModalTask = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
+        // Verifica se o input está vazio
         if (input.trim() === "") {
             setError("Digite algo")
             return
         }
 
+        // Verifica se existe uma data.
         if (!isEditing && !newTaskDay && !date) {
             setError("Selecione uma data")
             return
         }
 
+        // Após o envio seta o erro como vazio novamente
         setError("")
 
+        // Chama a função de acordo com o que foi pedido no front.
         if (isEditing) {
             handleEditTask()
         }
@@ -106,26 +110,29 @@ export const ModalTask = ({
         }
 
         handleOpenChange(false)
-
     }
 
-    // Handler para setar o estado do modal.  
+    // Handler para setar o estado do modal, e outros states.  
     const handleOpenChange = (open: boolean) => {
-        onOpenDialogChange(open)
+
         if (!open) {
-            onOpenEditing(false)
-            onOpenNewTaskDay(false)
-            setInput("")
-            setDate(undefined)
-            setError("")
+            setTimeout(() => {
+                onOpenEditing(false)
+                onOpenNewTaskDay(false)
+                setInput("")
+                setDate(undefined)
+                setError("")
+            }, 200)
+
         }
+        onOpenDialogChange(open)
     }
 
 
     return (
         <Dialog
             open={openDialog} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-[425px] bg-slate-200 border-0 ">
+            <DialogContent className="sm:max-w-[425px]  border-0 ">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader className=" mb-4 ">
                         <DialogTitle className="text-2xl">
@@ -137,18 +144,20 @@ export const ModalTask = ({
                             ? (<div className="grid gap-3">
                                 <Label htmlFor="name-1" className=" text-2xl">Tarefa</Label>
                                 <Input
-                                    className={`bg-white ${error ? "border-2 border-red-500" : ""}`}
+                                    className={` ${error ? "border-2 border-red-500" : "border-black"}`}
                                     id="name-1"
+                                    autoComplete="off"
                                     name="name"
                                     placeholder={valueTask}
                                     onChange={(e) => {
                                         setInput(e.target.value)
                                         setError("")
                                     }} />
+                                {/* Mensagem de erro abaixo do input */}
                                 {error && (
-                                    <div className="flex gap-2 p-1 bg-red-600  pl-2 rounded">
-                                        <AlertCircleIcon className="w-5" />
-                                        <span >{error}</span>
+                                    <div className="flex gap-2 p-1 bg-red-600 pl-2 rounded">
+                                        <AlertCircleIcon className="w-5" color="white" />
+                                        <span className="text-white">{error}</span>
                                     </div>
                                 )}
 
@@ -156,18 +165,20 @@ export const ModalTask = ({
                             : (<div className="grid gap-3">
                                 <Label htmlFor="name-1" className=" text-xl">Tarefa</Label>
                                 <Input
-                                    className={`bg-white ${error ? "border-2 border-red-500" : ""}`}
+                                    className={` ${error ? "border-2 border-red-500" : ""}`}
                                     id="name-1"
+                                    autoComplete="off"
                                     name="name"
                                     placeholder="Ex: Ir ao dentista sábado"
                                     onChange={(e) => {
                                         setInput(e.target.value)
                                         setError("")
                                     }} />
+                                {/* Mensagem de erro abaixo do input */}
                                 {error && (
-                                    <div className="flex gap-2 p-1 bg-red-600 text-white pl-2 rounded">
-                                        <AlertCircleIcon className="w-5" />
-                                        <span >{error}</span>
+                                    <div className="flex gap-2 p-1 bg-red-600 pl-2 rounded">
+                                        <AlertCircleIcon className="w-5 " color="white" />
+                                        <span className="text-white">{error}</span>
                                     </div>
                                 )}
 
@@ -181,9 +192,9 @@ export const ModalTask = ({
                                 <Popover open={open} onOpenChange={setOpen}>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            variant="outline"
+                                            variant="secondary"
                                             id="date"
-                                            className="w-48 justify-between font-normal "
+                                            className="w-48 justify-between font-normal"
                                         >
                                             {date ? date.toLocaleDateString() : "Selecione o dia"}
                                             <ChevronDownIcon />
@@ -207,9 +218,9 @@ export const ModalTask = ({
                     </div>
                     <DialogFooter className="mt-4">
                         <DialogClose asChild>
-                            <Button className="bg-rose-700 p-2 rounded-md hover:bg-rose-800 ">Cancelar</Button>
+                            <Button className="bg-rose-700 p-2 rounded-md hover:bg-rose-800 text-white">Cancelar</Button>
                         </DialogClose>
-                        <Button type="submit" className="bg-green-700 hover:bg-green-800">Salvar</Button>
+                        <Button type="submit" className="bg-green-700 hover:bg-green-800 text-white">Salvar</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

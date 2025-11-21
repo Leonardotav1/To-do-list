@@ -38,11 +38,9 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
     // Carrega os dados do localStorage ao iniciar o app.
     useEffect(() => {
         const saved = localStorage.getItem("tasks")
-        console.log("O useEffect rodou")
         if (saved) {
             try {
                 setTasksByDate(JSON.parse(saved))
-                console.log("Dados carregados ao localStorage", saved)
             } catch (err) {
                 console.error("Erro ao carregar dados do localStorage", err)
             }

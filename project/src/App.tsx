@@ -3,14 +3,14 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { Home } from './pages/HomePage'
+import { ThemeProvider } from './components/Theme/theme-provider'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <Home/>
-    </>
+      <ThemeProvider>
+        <Home />
+      </ThemeProvider>
   )
 }
 
